@@ -8,6 +8,13 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
 
+    if (!code) {
+        return NextResponse.json(
+            { error: "Authorization code is missing" },
+            { status: 400 }
+        );
+    }
+
     try {
         const response = await axios.post(
             "https://www.strava.com/oauth/token",
@@ -44,7 +51,7 @@ export async function GET(req: Request) {
 
         const cleanUrl = new URL(req.url);
         cleanUrl.searchParams.delete("code");
-        return NextResponse.redirect(cleanUrl.pathname);
+        return NextResponse.redirect(cleanUrl.href);
     } catch (error) {
         return NextResponse.json(
             { error: "Something happened" },
