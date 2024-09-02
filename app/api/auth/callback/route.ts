@@ -42,7 +42,9 @@ export async function GET(req: Request) {
             expires: new Date(expires_at * 1000),
         });
 
-        return NextResponse.redirect("/"); // Redirect to home or another page after successful login
+        const cleanUrl = new URL(req.url);
+        cleanUrl.searchParams.delete("code");
+        return NextResponse.redirect(cleanUrl.pathname);
     } catch (error) {
         return NextResponse.json(
             { error: "Something happened" },

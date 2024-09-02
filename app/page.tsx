@@ -14,37 +14,23 @@ export default function Home() {
     }
     const [userData, setuserData] = useState<UserData | null>(null);
 
-    function getCookie(name: string) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) {
-            return parts.pop()?.split(";").shift();
-        }
-        return null;
-    }
-
     useEffect(() => {
-        const checkLoginStatus = async () => {
+        const fetchAthleteData = async () => {
             try {
-                const res = await fetch("/api/auth/status");
+                const res = await fetch("/api/auth/athlete");
                 if (res.ok) {
+                    const data = await res.json();
+                    setuserData(data);
                     setisLogged(true);
-
-                    const userDet = getCookie("user_details");
-                    if (userDet) {
-                        const userJson = JSON.parse(userDet);
-                        setuserData(userJson);
-                    }
                 } else {
                     setisLogged(false);
-                    setuserData(null);
                 }
             } catch (e) {
+                console.error("Failed to fetch athlete data:", e);
                 setisLogged(false);
-                setuserData(null);
             }
         };
-        checkLoginStatus();
+        fetchAthleteData();
     }, []);
 
     const handleLogin = () => {
