@@ -2,11 +2,17 @@
 import StravaLogin from "@/components/buttons/StravaLoginButton";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Avatar from "@/components/Avatar";
 
 export default function Home() {
     const router = useRouter();
     const [isLogged, setisLogged] = useState(false);
-    const [userData, setuserData] = useState("");
+    interface UserData {
+        firstname: string;
+        lastname: string;
+        profile: string;
+    }
+    const [userData, setuserData] = useState<UserData | null>(null);
 
     function getCookie(name: string) {
         const value = `; ${document.cookie}`;
@@ -27,15 +33,15 @@ export default function Home() {
                     const userDet = getCookie("user_details");
                     if (userDet) {
                         const userJson = JSON.parse(userDet);
-                        setuserData(userJson.firstname);
+                        setuserData(userJson);
                     }
                 } else {
                     setisLogged(false);
-                    setuserData("");
+                    setuserData(null);
                 }
             } catch (e) {
                 setisLogged(false);
-                setuserData("");
+                setuserData(null);
             }
         };
         checkLoginStatus();
@@ -48,13 +54,19 @@ export default function Home() {
     const handleLogout = async () => {
         await fetch("/api/auth/logout");
         setisLogged(false);
-        setuserData("");
+        setuserData(null);
     };
 
     return (
         <main className="flex min-h-screen flex-row items-center justify-center p-24">
-            {isLogged ? (
-                <div>Hi {userData}</div>
+            {isLogged && userData ? (
+                <div>
+                    <Avatar
+                        userPhoto={userData.profile}
+                        userName={`${userData.firstname} ${userData.lastname}`}
+                        onLogout={handleLogout}
+                    />
+                </div>
             ) : (
                 <StravaLogin mode="dark" loginAction={handleLogin} />
             )}
