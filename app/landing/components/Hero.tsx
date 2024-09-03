@@ -7,13 +7,13 @@ import Avatar from "@/components/ui/Avatar";
 
 const Hero = () => {
     const router = useRouter();
-    const [isLogged, setisLogged] = useState(false);
+    const [isLogged, setIsLogged] = useState<boolean>(false);
     interface UserData {
         firstname: string;
         lastname: string;
         profile: string;
     }
-    const [userData, setuserData] = useState<UserData | null>(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
 
     useEffect(() => {
         const fetchAthleteData = async () => {
@@ -21,14 +21,14 @@ const Hero = () => {
                 const res = await fetch("/api/auth/athlete");
                 if (res.ok) {
                     const data = await res.json();
-                    setuserData(data);
-                    setisLogged(true);
+                    setUserData(data);
+                    setIsLogged(true);
                 } else {
-                    setisLogged(false);
+                    setIsLogged(false);
                 }
             } catch (e) {
                 console.error("Failed to fetch athlete data:", e);
-                setisLogged(false);
+                setIsLogged(false);
             }
         };
         fetchAthleteData();
@@ -40,8 +40,8 @@ const Hero = () => {
 
     const handleLogout = async () => {
         await fetch("/api/auth/logout");
-        setisLogged(false);
-        setuserData(null);
+        setIsLogged(false);
+        setUserData(null);
     };
 
     return (
