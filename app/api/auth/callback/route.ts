@@ -38,7 +38,6 @@ function setCookies(data: {
         const { refresh_token, access_token, athlete, expires_at } = data;
         const expirationDate = new Date(expires_at * 1000);
         const isSecure = workingEnv === "production";
-
         cookies().set("rfresh_tkn", refresh_token, {
             httpOnly: true,
             secure: isSecure,
