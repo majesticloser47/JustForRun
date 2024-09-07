@@ -37,31 +37,24 @@ function setCookies(data: {
         const { refresh_token, access_token, athlete, expires_at } = data;
         const expirationDate = new Date(expires_at * 1000);
         const isSecure = NODE_ENV === "production";
-        cookies().set("rfresh_tkn", refresh_token, {
-            httpOnly: true,
-            secure: isSecure,
-            sameSite: "lax",
-            path: "/",
-            expires: expirationDate,
-        });
 
-        cookies().set("accss_tkn", access_token, {
-            httpOnly: true,
-            secure: isSecure,
-            sameSite: "lax",
-            path: "/",
-            expires: expirationDate,
-        });
+        // Retrieve the cookies object
+        const cookieStore = cookies();
 
-        cookies().set("user_details", JSON.stringify(athlete), {
-            path: "/",
-            expires: expirationDate,
-            sameSite: "lax",
+        const cookieOptions = {
             httpOnly: true,
             secure: isSecure,
-        });
+            sameSite: "lax" as const,
+            path: "/",
+            expires: expirationDate,
+        };
+
+        // Set the cookies using the cookieStore
+        cookieStore.set("rfresh_tkn", refresh_token, cookieOptions);
+        cookieStore.set("accss_tkn", access_token, cookieOptions);
+        cookieStore.set("user_details", JSON.stringify(athlete), cookieOptions);
     } catch (error) {
-        throw new Error("Error setting cookies");
+        throw new Error("Error setting cookies: " + error);
     }
 }
 
@@ -79,7 +72,6 @@ export async function GET(req: Request) {
     try {
         const tokenData = await exchangeCodeForTokens(code);
         setCookies(tokenData);
-
         return NextResponse.redirect(APP_HOME_URL);
     } catch (error) {
         return NextResponse.json(
