@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
+import { env } from "@/utils/env";
 
 export async function GET() {
-    const clientId = process.env.STRAVA_CLIENT_ID as string;
-    const redirectURI = process.env.STRAVA_REDIRECT_URL as string;
+    const { STRAVA_CLIENT_ID, STRAVA_CALLBACK_URL, STRAVA_NEW_LOGIN } = env;
     const response_type = "code";
     const scope = "read";
-    const reqUrl = new URL("https://www.strava.com/oauth/authorize");
+    const reqUrl = new URL(STRAVA_NEW_LOGIN);
 
-    reqUrl.searchParams.set("client_id", clientId);
-    reqUrl.searchParams.set("redirect_uri", redirectURI);
+    reqUrl.searchParams.set("client_id", STRAVA_CLIENT_ID);
+    reqUrl.searchParams.set("redirect_uri", STRAVA_CALLBACK_URL);
     reqUrl.searchParams.set("response_type", response_type);
     reqUrl.searchParams.set("scope", scope);
 

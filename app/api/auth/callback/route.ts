@@ -1,27 +1,26 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import axios from "axios";
+import { env } from "@/utils/env";
 
-// Extract environment variables
-const clientId = process.env.STRAVA_CLIENT_ID as string;
-const clientSecret = process.env.STRAVA_CLIENT_SECRET as string;
-const redirectUrl = process.env.APP_HOME_URL as string;
-const workingEnv = process.env.NODE_ENV;
+const {
+    STRAVA_CLIENT_ID,
+    STRAVA_CLIENT_SECRET,
+    STRAVA_FETCH_TOKEN,
+    APP_HOME_URL,
+    NODE_ENV,
+} = env;
 
 async function exchangeCodeForTokens(code: string) {
     try {
-        const response = await axios.post(
-            "https://www.strava.com/oauth/token",
-            null,
-            {
-                params: {
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    grant_type: "authorization_code",
-                    code: code,
-                },
-            }
-        );
+        const response = await axios.post(STRAVA_FETCH_TOKEN, null, {
+            params: {
+                client_id: STRAVA_CLIENT_ID,
+                client_secret: STRAVA_CLIENT_SECRET,
+                grant_type: "authorization_code",
+                code: code,
+            },
+        });
         return response.data;
     } catch (error) {
         throw new Error("Error exchanging authorization code for tokens");
@@ -37,7 +36,7 @@ function setCookies(data: {
     try {
         const { refresh_token, access_token, athlete, expires_at } = data;
         const expirationDate = new Date(expires_at * 1000);
-        const isSecure = workingEnv === "production";
+        const isSecure = NODE_ENV === "production";
         cookies().set("rfresh_tkn", refresh_token, {
             httpOnly: true,
             secure: isSecure,
@@ -81,7 +80,7 @@ export async function GET(req: Request) {
         const tokenData = await exchangeCodeForTokens(code);
         setCookies(tokenData);
 
-        return NextResponse.redirect(redirectUrl);
+        return NextResponse.redirect(APP_HOME_URL);
     } catch (error) {
         return NextResponse.json(
             { error: error || "Something went wrong" },
